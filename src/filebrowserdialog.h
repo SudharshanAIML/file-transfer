@@ -14,13 +14,12 @@ class FileBrowserDialog : public QDialog {
 public:
     explicit FileBrowserDialog(QWidget *parent = nullptr);
 
-    QList<FileEntry> selectedEntries() const { return m_selectedEntries; }
+    QList<FileEntry> selectedEntries() const;
 
 private slots:
     void onDirectoryActivated(const QModelIndex &index);
     void onAddClicked();
     void onRemoveClicked();
-    void onShortcutClicked();
     void onItemDoubleClicked(QListWidgetItem *item);
     void updateAddButton();
 

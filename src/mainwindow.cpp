@@ -3,6 +3,7 @@
 #include "filebrowserdialog.h"
 #include "protocol.h"
 #include <QApplication>
+#include <QButtonGroup>
 #include <QCloseEvent>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,6 +15,7 @@
 #include <QSettings>
 #include <QHostInfo>
 #include <QNetworkInterface>
+#include <QStandardPaths>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
