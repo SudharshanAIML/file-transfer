@@ -1,106 +1,86 @@
 # LANShare
 
-**Fast, direct peer-to-peer file transfer over your local network.**  
-No cloud. No accounts. No internet required.
+**Zero-install, browser-based local network file sharing.**  
+Run one command → browser opens → pick folders → anyone on your Wi-Fi can download.
 
 ---
 
-## Features (v1.0)
+## How it works
 
-| Feature | Status |
+```
+You run:  python3 lanshare.py
+          ↓
+Browser opens at http://localhost:7070
+
+You pick a folder  →  all files appear in the web UI
+Someone else on the same Wi-Fi visits http://192.168.x.x:7070
+They see every file and click Download  →  file saves to their laptop
+```
+
+No installation. No accounts. No internet required.
+
+---
+
+## Quick Start
+
+```bash
+python3 lanshare.py
+```
+
+The browser opens automatically. To share files:
+
+1. Click **"Click to choose a folder"**
+2. Select a folder (e.g. Videos, Documents, Downloads)
+3. All files inside appear in the list instantly
+4. Tell others to open the **Network URL** shown in the terminal
+
+---
+
+## Options
+
+```bash
+python3 lanshare.py --port 8080       # use a different port
+python3 lanshare.py --no-browser      # don't auto-open browser
+```
+
+---
+
+## Features
+
+| Feature | Details |
 |---|---|
-| Auto device discovery (UDP broadcast) | ✅ |
-| Direct TCP file transfer | ✅ |
-| Transfer multiple files / entire folders | ✅ |
-| Sender + Receiver on every device | ✅ |
-| Live progress: speed, file name, bytes | ✅ |
-| Incoming transfer consent dialog | ✅ |
-| System tray (minimize to background) | ✅ |
-| Path traversal protection | ✅ |
-| 512 KiB streaming chunks | ✅ |
+| 📂 Folder sharing | Pick any folder — all files listed recursively |
+| 🔍 Search | Filter files by name instantly |
+| ⬇️ One-click download | Streams directly to visitor's browser |
+| 🖼️ File icons | Auto-detected by extension (video, audio, image, etc.) |
+| 🌐 Any device | Works on any browser — laptop, phone, tablet |
+| 🗑️ Remove shares | Click × on a folder to stop sharing it |
+| 🔄 Auto-refresh | Viewer page updates every 5 seconds |
+| 🔒 Path sanitization | `..` path traversal blocked server-side |
 
 ---
 
-## Architecture
+## Requirements
 
-```
-Laptop A ←── Same Wi-Fi ──→ Laptop B
-TCP :45454                  TCP :45454
-UDP :45454                  UDP :45454
-
-Discovery:  UDP broadcast every 2 s
-Transfer:   direct TCP stream, framed messages
-```
-
-Every device is both sender and receiver. No relay server needed.
+- Python 3.8+  *(pre-installed on all Linux/macOS systems)*
+- No pip packages needed — uses only the standard library
 
 ---
 
-## Build
+## Network access
 
-### Requirements
+All devices must be on the **same Wi-Fi or LAN**.  
+The terminal will print your network URL, e.g.:
 
-- CMake ≥ 3.22  
-- Qt 6.x **or** Qt 5.15 (auto-detected)  
-- C++20-capable compiler (GCC 10+, Clang 12+, MSVC 2019+)
-
-### Ubuntu / Debian
-
-```bash
-# Qt6 (preferred)
-sudo apt install qt6-base-dev
-
-# OR Qt5
-sudo apt install qt5-default libqt5network5-dev qtbase5-dev
-
-# Build
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+```
+  ║  Network: http://192.168.1.42:7070       ║
 ```
 
-### Run
-
-```bash
-./build/LANShare
-```
-
-Open LANShare on **two or more devices on the same LAN**. They will discover each other automatically within a few seconds.
+Share that URL with anyone on the same network.
 
 ---
 
-## Usage
+## Where files are stored
 
-1. **Devices tab** — shows all LANShare peers found on the LAN.
-2. Click **Send Files →** next to a peer.
-3. Browse and select files or folders (use the Quick Access shortcuts).
-4. Click **Send Selected →**.
-5. The receiver sees a consent dialog — they choose a save folder and click Yes.
-6. Watch progress in the **Transfers** tab on both sides.
-
----
-
-## Protocol
-
-```
-[1 byte MsgType] [4 bytes big-endian length] [payload bytes]
-```
-
-| Message | Direction | Payload |
-|---|---|---|
-| `TransferRequest` | → Receiver | JSON: deviceName, file list |
-| `TransferAccepted` | → Sender | (empty) |
-| `TransferRejected` | → Sender | (empty) |
-| `FileHeader` | → Receiver | JSON: name, relPath, size |
-| `FileData` | → Receiver | raw bytes (512 KiB chunk) |
-| `FileAck` | → Sender | file fully written |
-| `TransferComplete` | → Receiver | all files sent |
-
----
-
-## Roadmap
-
-- [ ] SHA-256 checksum verification  
-- [ ] Pause / resume transfers  
-- [ ] Session PIN pairing  
-- [ ] Android (Qt for Android)  
-- [ ] Transfer history  
+Uploaded files are cached in `~/.lanshare_uploads/`.  
+You can safely delete this folder when done.
